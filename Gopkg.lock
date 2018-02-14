@@ -2,8 +2,23 @@
 
 
 [[projects]]
-  name = "github.com/jinzhu/gorm"
+  name = "github.com/gorilla/context"
   packages = ["."]
+  revision = "1ea25387ff6f684839d82767c1733ff4d4d15d0a"
+  version = "v1.1"
+
+[[projects]]
+  name = "github.com/gorilla/mux"
+  packages = ["."]
+  revision = "53c1911da2b537f792e7cafcb446b05ffe33b996"
+  version = "v1.6.1"
+
+[[projects]]
+  name = "github.com/jinzhu/gorm"
+  packages = [
+    ".",
+    "dialects/postgres"
+  ]
   revision = "5174cc5c242a728b435ea2be8a2f7f998e15429b"
   version = "v1.0"
 
@@ -13,9 +28,19 @@
   packages = ["."]
   revision = "1c35d901db3da928c72a72d8458480cc9ade058f"
 
+[[projects]]
+  branch = "master"
+  name = "github.com/lib/pq"
+  packages = [
+    ".",
+    "hstore",
+    "oid"
+  ]
+  revision = "88edab0803230a3898347e77b474f8c1820a1f20"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "df280bceb2e00689a968253e75df80be733cbd5626aba372139ccbe17728aac2"
+  inputs-digest = "d7eafe77e4044499d04ff32d00d52fc4c923cb1dd34bc64d2a7e7d9aa4d25009"
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -2,6 +2,8 @@ package model
 
 import (
 	"time"
+	"github.com/YAWAL/HotelService/database"
+	"log"
 )
 
 type Tenant struct {
@@ -29,14 +31,40 @@ type RentResponse struct {
 	OrderedRooms map[int]string `json:"ordered_rooms"`
 }
 
+// GetAllHotelRooms returns list of all rooms in hotel
 func (hr HotelRoom) GetAllHotelRooms() []HotelRoom {
 	hotelRooms := make([]HotelRoom, 0)
-	//TODO implement GetAllHotelRooms logic
+	query := "SELECT * FROM hotel_rooms ORDER BY number"
+	conn, err := database.DBconnection()
+	if err != nil {
+		log.Fatal("Error durind connection to db has occurred: ", err)
+	}
+	if rows, err := conn.Raw(query).Rows(); err == nil {
+		defer rows.Close()
+		for rows.Next() {
+			var hotelRoom HotelRoom
+			rows.Scan(&hotelRoom.Number, &hotelRoom.RoomQuantity, &hotelRoom.IsFree)
+			hotelRooms = append(hotelRooms, hotelRoom)
+		}
+	}
 	return hotelRooms
 }
 
+// GetAllRents return list of all ordered rooms
 func (r Rent) GetAllRents() []Rent {
 	rents := make([]Rent, 0)
-	//TODO implement GetAllRents logic
+	query := "SELECT * FROM rents ORDER BY id"
+	conn, err := database.DBconnection()
+	if err != nil {
+		log.Fatal("Error durind connection to db has occurred: ", err)
+	}
+	if rows, err := conn.Raw(query).Rows(); err == nil {
+		defer rows.Close()
+		for rows.Next() {
+			var rent Rent
+			rows.Scan(&rent.Id, &rent.HotelRoomNum, &rent.TenantId, &rent.StartDate, &rent.EndDate)
+			rents = append(rents, rent)
+		}
+	}
 	return rents
 }
