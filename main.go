@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/YAWAL/HotelService/model"
 	"net/http"
 	"log"
 	"github.com/YAWAL/HotelService/router"

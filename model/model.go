@@ -1,7 +1,6 @@
 package model
 
 import (
-	"time"
 	"github.com/YAWAL/HotelService/database"
 	"log"
 )
@@ -19,11 +18,9 @@ type HotelRoom struct {
 }
 
 type Rent struct {
-	Id           int       `json:"id"`
-	HotelRoomNum int       `json:"hotel_room_num"`
-	TenantId     int       `json:"tenant_id"`
-	StartDate    time.Time `json:"start_date"`
-	EndDate      time.Time `json:"end_date"`
+	Id           int `json:"id"`
+	HotelRoomNum int `json:"hotel_room_num"`
+	TenantId     int `json:"tenant_id"`
 }
 
 // RentResponse represent response (list of ordered rooms with tenant's name) for rendering
@@ -50,7 +47,18 @@ func (hr HotelRoom) GetAllHotelRooms() []HotelRoom {
 	return hotelRooms
 }
 
-// GetAllRents return list of all ordered rooms
+// GetHotelRoomByNum returns info about hotel room with mentioned room number
+func (hr HotelRoom) GetHotelRoomByNum(number string) HotelRoom {
+	var hotelRoom HotelRoom
+	conn, err := database.DBconnection()
+	if err != nil {
+		log.Fatal("Error durind connection to db has occurred: ", err)
+	}
+	conn.Where("number = ?", number).Find(&hotelRoom)
+	return hotelRoom
+}
+
+// GetAllRents return list of all rents
 func (r Rent) GetAllRents() []Rent {
 	rents := make([]Rent, 0)
 	query := "SELECT * FROM rents ORDER BY id"
@@ -62,7 +70,7 @@ func (r Rent) GetAllRents() []Rent {
 		defer rows.Close()
 		for rows.Next() {
 			var rent Rent
-			rows.Scan(&rent.Id, &rent.HotelRoomNum, &rent.TenantId, &rent.StartDate, &rent.EndDate)
+			rows.Scan(&rent.Id, &rent.HotelRoomNum, &rent.TenantId)
 			rents = append(rents, rent)
 		}
 	}
