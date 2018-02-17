@@ -23,6 +23,11 @@ type Rent struct {
 	TenantId     int `json:"tenant_id"`
 }
 
+type ShowRent struct {
+	HotelRoomNum int    `json:"hotel_room_num"`
+	Tenant       *Tenant `json:"tenant"`
+}
+
 // RentResponse represent response (list of ordered rooms with tenant's name) for rendering
 type RentResponse struct {
 	OrderedRooms map[int]string `json:"ordered_rooms"`
@@ -75,4 +80,46 @@ func (r Rent) GetAllRents() []Rent {
 		}
 	}
 	return rents
+}
+
+func GetAllRents() []Rent {
+	rents := make([]Rent, 0)
+	query := "SELECT * FROM rents ORDER BY id"
+	conn, err := database.DBconnection()
+	if err != nil {
+		log.Fatal("Error durind connection to db has occurred: ", err)
+	}
+	if rows, err := conn.Raw(query).Rows(); err == nil {
+		defer rows.Close()
+		for rows.Next() {
+			var rent Rent
+			rows.Scan(&rent.Id, &rent.HotelRoomNum, &rent.TenantId)
+			rents = append(rents, rent)
+		}
+	}
+	return rents
+}
+
+func (sr ShowRent) ShowAllRents() []ShowRent {
+	rents := GetAllRents()
+	log.Println(rents)
+	showRents := make([]ShowRent, 0)
+	conn, err := database.DBconnection()
+	if err != nil {
+		log.Fatal("Error durind connection to db has occurred: ", err)
+	}
+	for _, rent := range rents {
+		var showRent ShowRent
+		query := "SELECT * FROM tenants WHERE id = ?"
+		if row := conn.Raw(query, rent.TenantId).Row(); err == nil {
+			var tenant Tenant
+			row.Scan(&tenant.Id, &tenant.Name, &tenant.LastName)
+			showRent.HotelRoomNum = rent.HotelRoomNum
+			showRent.Tenant = &tenant
+			showRents = append(showRents, showRent)
+		}else {
+			log.Fatalf("Error during selecting tenenta has occurred: %v", err)
+		}
+	}
+	return showRents
 }
