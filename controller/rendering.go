@@ -14,36 +14,21 @@ func RenderJSON(w http.ResponseWriter, response interface{}) {
 	w.Write(data)
 }
 
-// HotelRooms is handler function for "/hotelRooms GET" route
-func HotelRooms(w http.ResponseWriter, r *http.Request) {
-	RenderJSON(w, (model.HotelRoom{}).GetAllHotelRooms())
-}
-
-// HotelRoomByNum is handler function for "/hotelRoom/{id:[0-9]+} GET" route
-func HotelRoomByNum(w http.ResponseWriter, r *http.Request) {
-	url := r.URL.Path
-	number := path.Base(url)
-	RenderJSON(w, (model.HotelRoom{}).GetHotelRoomByNum(number))
-}
-
-// Rents is handler function for "/rents GET" route
-func Rents(w http.ResponseWriter, r *http.Request) {
-	RenderJSON(w, (model.Rent{}).GetAllRents())
-}
-
-// Rents is handler function for "/rents GET" route
+// Rents is a handler function for "/rents GET" route
+// it shows list with ordered hotel rooms and tenants
 func ShowRents(w http.ResponseWriter, r *http.Request) {
 	RenderJSON(w, (model.ShowRent{}).ShowAllRents())
 }
 
-// DeleteRent is handler for "/rents/{id} DELETE" route
+// DeleteRent is a handler for "/rents/{id} DELETE" route
+// it deletes item from list with ordered hotel rooms and tenants by hotel number id
 func DeleteRent(w http.ResponseWriter, r *http.Request) {
 	hotelNumber := path.Base(r.URL.Path)
 	RenderJSON(w, (model.ShowRent{}).DeleteRent(hotelNumber))
-
 }
 
-// UpdateRents is handler for "/rents/{hotelNum:[0-9]+}/{tenId:[0-9]+} PUT" route
+// UpdateRents is a handler for "/rents/{hotelNum:[0-9]+}/{tenId:[0-9]+} PUT" route
+// it updates item in list with ordered hotel rooms and tenants
 func UpdateRents(w http.ResponseWriter, r *http.Request) {
 	tenantId := path.Base(r.URL.Path)
 	pth := strings.Split(r.URL.Path, "/")
@@ -51,7 +36,8 @@ func UpdateRents(w http.ResponseWriter, r *http.Request) {
 	RenderJSON(w, (model.ShowRent{}).UpdateRent(hotelNum, tenantId))
 }
 
-// CreateRents is handler for "/rents/{hotelNum:[0-9]+}/{tenId:[0-9]+} POST" route
+// CreateRents is a handler for "/rents/{hotelNum:[0-9]+}/{tenId:[0-9]+} POST" route
+// it creates item in list with ordered hotel rooms and tenants
 func CreateRents(w http.ResponseWriter, r *http.Request) {
 	tenantId := path.Base(r.URL.Path)
 	pth := strings.Split(r.URL.Path, "/")
