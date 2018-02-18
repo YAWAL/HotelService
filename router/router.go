@@ -20,8 +20,8 @@ func init() {
 	api.HandleFunc("/rentsRoom", controller.Rents).Methods("GET")
 
 	api.HandleFunc("/rents", controller.ShowRents).Methods("GET")
-	//api.HandleFunc("/rents", controller.CreateRents).Methods("POST")
-	//api.HandleFunc("/rents/{id}", controller.UpdateRents).Methods("UPDATE")
-	//api.HandleFunc("/rents/{id}", controller.DdeleteRents).Methods("DELETE")
+	api.HandleFunc("/rents/{hotelNum:[0-9]+}/{tenId:[0-9]+}", controller.CreateRents).Methods("POST")
+	api.HandleFunc("/rents/{hotelNum:[0-9]+}/{tenId:[0-9]+}", controller.UpdateRents).Methods("PUT")
+	api.HandleFunc("/rents/{id}", controller.DeleteRent).Methods("DELETE")
 
 }

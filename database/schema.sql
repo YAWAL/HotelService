@@ -10,11 +10,9 @@ CREATE TABLE IF NOT EXISTS tenants (
   last_name VARCHAR(30)
 );
 CREATE TABLE IF NOT EXISTS rents(
-  id INT,
+  id SERIAL,
   hotel_room_num INT,
-  tenant_id INT,
-  start_day TIMESTAMP,
-  end_day TIMESTAMP
+  tenant_id INT
 );
 
 -- adding primary keys into tables

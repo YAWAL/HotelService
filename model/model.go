@@ -3,6 +3,7 @@ package model
 import (
 	"github.com/YAWAL/HotelService/database"
 	"log"
+	"strconv"
 )
 
 type Tenant struct {
@@ -24,7 +25,7 @@ type Rent struct {
 }
 
 type ShowRent struct {
-	HotelRoomNum int    `json:"hotel_room_num"`
+	HotelRoomNum int     `json:"hotel_room_num"`
 	Tenant       *Tenant `json:"tenant"`
 }
 
@@ -117,9 +118,73 @@ func (sr ShowRent) ShowAllRents() []ShowRent {
 			showRent.HotelRoomNum = rent.HotelRoomNum
 			showRent.Tenant = &tenant
 			showRents = append(showRents, showRent)
-		}else {
+		} else {
 			log.Fatalf("Error during selecting tenenta has occurred: %v", err)
 		}
 	}
 	return showRents
+}
+
+func ShowAllRents() []ShowRent {
+	rents := GetAllRents()
+	log.Println(rents)
+	showRents := make([]ShowRent, 0)
+	conn, err := database.DBconnection()
+	if err != nil {
+		log.Fatal("Error durind connection to db has occurred: ", err)
+	}
+	for _, rent := range rents {
+		var showRent ShowRent
+		query := "SELECT * FROM tenants WHERE id = ?"
+		if row := conn.Raw(query, rent.TenantId).Row(); err == nil {
+			var tenant Tenant
+			row.Scan(&tenant.Id, &tenant.Name, &tenant.LastName)
+			showRent.HotelRoomNum = rent.HotelRoomNum
+			showRent.Tenant = &tenant
+			showRents = append(showRents, showRent)
+		} else {
+			log.Fatalf("Error during selecting tenenta has occurred: %v", err)
+		}
+	}
+	return showRents
+}
+
+func (sr ShowRent) DeleteRent(hotelNumber string) []ShowRent {
+	deleteQuery := "DELETE FROM rents WHERE hotel_room_num = ?"
+	updateQuery := "UPDATE is_free FROM hotel_rooms SET is_free = TRUE"
+	conn, err := database.DBconnection()
+	if err != nil {
+		log.Fatal("Error durind connection to db has occurred: ", err)
+	}
+	conn.Exec(deleteQuery, hotelNumber)
+	conn.Exec(updateQuery)
+	return ShowAllRents()
+}
+
+func (sr ShowRent) UpdateRent(hotelNumber, tenantId string) []ShowRent {
+	updateQuery := "UPDATE rents SET tenant_id = ? WHERE hotel_room_num = ?"
+	conn, err := database.DBconnection()
+	if err != nil {
+		log.Fatal("Error durind connection to db has occurred: ", err)
+	}
+	conn.Exec(updateQuery, tenantId, hotelNumber)
+	return ShowAllRents()
+}
+
+func (sr ShowRent) CreateRent(hotelNumber, tenantId string) []ShowRent {
+	conn, err := database.DBconnection()
+	if err != nil {
+		log.Fatal("Error durind connection to db has occurred: ", err)
+	}
+	hotelNumberInt, err := strconv.Atoi(hotelNumber)
+	if err != nil {
+		log.Fatal("Error durind conversion of hotelNumber has occurred: ", err)
+	}
+	tenantIdInt, err := strconv.Atoi(tenantId)
+	if err != nil {
+		log.Fatal("Error durind conversion of tenantId has occurred: ", err)
+	}
+	var rent = Rent{HotelRoomNum: hotelNumberInt, TenantId: tenantIdInt}
+	conn.Create(&rent)
+	return ShowAllRents()
 }
