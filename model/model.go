@@ -6,83 +6,34 @@ import (
 	"strconv"
 )
 
+// Tenant represent tenant entity
 type Tenant struct {
 	Id       int    `json:"id"`
 	Name     string `json:"name"`
 	LastName string `json:"last_name"`
 }
 
+// HotelRoom represent hotel room entity
 type HotelRoom struct {
 	Number       int  `json:"number"`
 	RoomQuantity int  `json:"room_quantity"`
 	IsFree       bool `json:"is_free"`
 }
 
+// Rent represent rent entity
 type Rent struct {
 	Id           int `json:"id"`
 	HotelRoomNum int `json:"hotel_room_num"`
 	TenantId     int `json:"tenant_id"`
 }
 
+// ShowRent is a structure which contain information for rendering
 type ShowRent struct {
 	HotelRoomNum int     `json:"hotel_room_num"`
 	Tenant       *Tenant `json:"tenant"`
 }
 
-// RentResponse represent response (list of ordered rooms with tenant's name) for rendering
-type RentResponse struct {
-	OrderedRooms map[int]string `json:"ordered_rooms"`
-}
-
-// GetAllHotelRooms returns list of all rooms in hotel
-func (hr HotelRoom) GetAllHotelRooms() []HotelRoom {
-	hotelRooms := make([]HotelRoom, 0)
-	query := "SELECT * FROM hotel_rooms ORDER BY number"
-	conn, err := database.DBconnection()
-	if err != nil {
-		log.Fatal("Error durind connection to db has occurred: ", err)
-	}
-	if rows, err := conn.Raw(query).Rows(); err == nil {
-		defer rows.Close()
-		for rows.Next() {
-			var hotelRoom HotelRoom
-			rows.Scan(&hotelRoom.Number, &hotelRoom.RoomQuantity, &hotelRoom.IsFree)
-			hotelRooms = append(hotelRooms, hotelRoom)
-		}
-	}
-	return hotelRooms
-}
-
-// GetHotelRoomByNum returns info about hotel room with mentioned room number
-func (hr HotelRoom) GetHotelRoomByNum(number string) HotelRoom {
-	var hotelRoom HotelRoom
-	conn, err := database.DBconnection()
-	if err != nil {
-		log.Fatal("Error durind connection to db has occurred: ", err)
-	}
-	conn.Where("number = ?", number).Find(&hotelRoom)
-	return hotelRoom
-}
-
-// GetAllRents return list of all rents
-func (r Rent) GetAllRents() []Rent {
-	rents := make([]Rent, 0)
-	query := "SELECT * FROM rents ORDER BY id"
-	conn, err := database.DBconnection()
-	if err != nil {
-		log.Fatal("Error durind connection to db has occurred: ", err)
-	}
-	if rows, err := conn.Raw(query).Rows(); err == nil {
-		defer rows.Close()
-		for rows.Next() {
-			var rent Rent
-			rows.Scan(&rent.Id, &rent.HotelRoomNum, &rent.TenantId)
-			rents = append(rents, rent)
-		}
-	}
-	return rents
-}
-
+// Util function for using in methods
 func GetAllRents() []Rent {
 	rents := make([]Rent, 0)
 	query := "SELECT * FROM rents ORDER BY id"
@@ -101,6 +52,7 @@ func GetAllRents() []Rent {
 	return rents
 }
 
+// ShowAllRents returns list of ordered rooms and their tenants
 func (sr ShowRent) ShowAllRents() []ShowRent {
 	rents := GetAllRents()
 	log.Println(rents)
@@ -125,6 +77,7 @@ func (sr ShowRent) ShowAllRents() []ShowRent {
 	return showRents
 }
 
+// Util function for using in methods
 func ShowAllRents() []ShowRent {
 	rents := GetAllRents()
 	log.Println(rents)
@@ -149,6 +102,7 @@ func ShowAllRents() []ShowRent {
 	return showRents
 }
 
+// DeleteRent delete rent cortege
 func (sr ShowRent) DeleteRent(hotelNumber string) []ShowRent {
 	deleteQuery := "DELETE FROM rents WHERE hotel_room_num = ?"
 	updateQuery := "UPDATE is_free FROM hotel_rooms SET is_free = TRUE"
@@ -161,6 +115,7 @@ func (sr ShowRent) DeleteRent(hotelNumber string) []ShowRent {
 	return ShowAllRents()
 }
 
+// UpdateRent updates info about rent
 func (sr ShowRent) UpdateRent(hotelNumber, tenantId string) []ShowRent {
 	updateQuery := "UPDATE rents SET tenant_id = ? WHERE hotel_room_num = ?"
 	conn, err := database.DBconnection()
@@ -171,6 +126,7 @@ func (sr ShowRent) UpdateRent(hotelNumber, tenantId string) []ShowRent {
 	return ShowAllRents()
 }
 
+// CreateRent create cortege with rent
 func (sr ShowRent) CreateRent(hotelNumber, tenantId string) []ShowRent {
 	conn, err := database.DBconnection()
 	if err != nil {
