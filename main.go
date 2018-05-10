@@ -6,11 +6,6 @@ import (
 	"github.com/YAWAL/HotelService/router"
 )
 
-//var (
-//	hr model.HotelRoom
-//	rn model.Rent
-//)
-
 func main() {
 
 	r := router.Router
